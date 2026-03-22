@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraud Detection Using Graph AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Fraud Detection Using Graph AI</h1>
+        <div class="metrics">
+            <p><strong>Model Accuracy:</strong> {{ accuracy }}</p>
+            <p><strong>Fraud Nodes:</strong> {{ fraud_count }} (red)</p>
+            <p><strong>Normal Nodes:</strong> {{ normal_count }} (blue)</p>
+            <button id="refresh">Refresh Dynamic Graph</button>
+        </div>
+        <div id="graph-container">
+            <div id="graph"></div>
+        </div>
+        <div class="legend">
+            <span class="legend-item red"></span> Fraud
+            <span class="legend-item blue"></span> Normal
+        </div>
+        <!-- Node Details Modal -->
+        <div id="nodeModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2 id="nodeTitle">Node Details</h2>
+                <p id="nodeSummary"></p>
+                <h3>Transactions (Top 10):</h3>
+                <table id="txnTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Type</th>
+                            <th>Other</th>
+                            <th>Amount</th>
+                            <th>Fraud</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <h3>Connections:</h3>
+                <p id="neighborsList"></p>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/graph.js') }}"></script>
+    <script>
+        const graphData = {{ graph_json | safe }};
+        const layout = {
+            title: 'Transaction Network (Click nodes for txn details, Hover, Zoom/Pan)',
+            showlegend: false,
+            hovermode: 'closest',
+            margin: { t: 40 },
+            xaxis: {showgrid: false, zeroline: false, showticklabels: false},
+            yaxis: {showgrid: false, zeroline: false, showticklabels: false}
+        };
+        Plotly.newPlot('graph', [graphData.node_trace, graphData.edge_trace], layout);
+    </script>
+</body>
+</html>
