@@ -22,6 +22,14 @@ python app.py
 ```
 **Open:** http://127.0.0.1:5000/
 
+## 📸 Screenshots
+
+### Fraud Network Visualization
+
+![Fraud Detection Graph](screenshot/nodeplot.png)
+
+Interactive graph showing accounts as nodes and transactions as edges. Fraudulent activity can be visually identified and explored through node interactions.
+
 ## Features
 | Feature | Description |
 |---------|-------------|
@@ -97,6 +105,17 @@ fraud-detection-graph-ai/
 1. Fork repo
 2. Create feature branch
 3. PR with tests
+
+## 📊 Project Results
+
+- Built a fraud detection system using graph-based transaction analysis
+- Modeled accounts as nodes and transactions as edges using NetworkX
+- Extracted graph features such as degree, clustering coefficient, and average transaction amount
+- Trained a Random Forest model for fraud classification
+- Interactive Plotly visualization for fraud exploration
+- Implemented node-level transaction history and neighbor analysis
+- Flask-based dashboard with real-time graph interaction
+- Dockerized application with automated testing support
 
 ## License
 MIT License
