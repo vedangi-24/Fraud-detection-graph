@@ -26,9 +26,11 @@ python app.py
 
 ### Fraud Network Visualization
 
-![Fraud Detection Graph](screenshot/nodeplot.png)
+![Fraud Detection Graph](screenshot/graph.png)
 
 Interactive graph showing accounts as nodes and transactions as edges. Fraudulent activity can be visually identified and explored through node interactions.
+
+All screenshot files in the `screenshot/` folder are included in this repository.
 
 ## Features
 | Feature | Description |
@@ -92,6 +94,14 @@ fraud-detection-graph-ai/
 ├── dataset.csv         # Fraud transactions
 ├── requirements.txt    # Dependencies
 ├── README.md          # 👈 This file
+├── screenshot/        # Included screenshot images
+│   ├── About.png
+│   ├── Analytics.png
+│   ├── dashboard.png
+│   ├── graph.png
+│   ├── Reports.png
+│   ├── Settings.png
+│   └── Transactions.png
 ├── templates/
 │   └── index.html     # Dashboard + modal
 ├── static/

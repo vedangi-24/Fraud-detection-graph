@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="section-panel">
+    <div class="section-header">
+        <h2>Reports</h2>
+        <p>Download fraud summaries and export analytics snapshots.</p>
+    </div>
+
+    {% if data_available %}
+    <div class="report-grid">
+        <div class="report-card">
+            <h3>Fraud Summary</h3>
+            <p>Generate a compact CSV summary of fraud metrics, transaction volume, and risk ratios.</p>
+            <a href="{{ url_for('download_report', report_type='summary') }}" class="primary-btn">Download Summary</a>
+        </div>
+        <div class="report-card">
+            <h3>Transaction Export</h3>
+            <p>Download the uploaded transaction dataset as a CSV file.</p>
+            <a href="{{ url_for('download_report', report_type='transactions') }}" class="primary-btn">Export Transactions</a>
+        </div>
+        <div class="report-card">
+            <h3>Graph Export</h3>
+            <p>Export the current transaction graph structure as JSON for external analysis.</p>
+            <a href="{{ url_for('download_report', report_type='graph') }}" class="secondary-btn">Download Graph JSON</a>
+        </div>
+    </div>
+    {% else %}
+    <div class="section-panel" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);">
+        <p class="hint-text">No dataset is currently loaded. Upload a transaction CSV file first to enable report downloads.</p>
+        <a href="{{ url_for('dashboard') }}" class="primary-btn">Upload CSV</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

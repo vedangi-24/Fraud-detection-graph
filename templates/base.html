@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body class="{{ theme | default('dark') }}-theme">
+    <div class="container">
+        <aside class="sidebar">
+            <div class="brand-panel">
+                <h2>Graph Fraud AI</h2>
+                <p>Enterprise-style dashboard for transaction network analysis.</p>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('dashboard') }}" class="{% if nav_active == 'dashboard' %}active{% endif %}">Dashboard</a>
+                <a href="{{ url_for('graph') }}" class="{% if nav_active == 'graph' %}active{% endif %}">Graph</a>
+                <a href="{{ url_for('transactions') }}" class="{% if nav_active == 'transactions' %}active{% endif %}">Transactions</a>
+                <a href="{{ url_for('analytics') }}" class="{% if nav_active == 'analytics' %}active{% endif %}">Analytics</a>
+                <a href="{{ url_for('reports') }}" class="{% if nav_active == 'reports' %}active{% endif %}">Reports</a>
+                <a href="{{ url_for('settings') }}" class="{% if nav_active == 'settings' %}active{% endif %}">Settings</a>
+                <a href="{{ url_for('about') }}" class="{% if nav_active == 'about' %}active{% endif %}">About</a>
+            </nav>
+            <div class="sidebar-card">
+                <h3>Risk Legend</h3>
+                <p><span class="legend-marker low"></span> Low Risk</p>
+                <p><span class="legend-marker medium"></span> Medium Risk</p>
+                <p><span class="legend-marker high"></span> High Risk</p>
+                <p><span class="legend-marker critical"></span> Critical Risk</p>
+            </div>
+            <div class="sidebar-card">
+                <h3>Dataset</h3>
+                <p><strong>{{ dataset_path }}</strong></p>
+                <p>Transactions: {{ total_transactions }}</p>
+                <p>Accounts: {{ total_accounts }}</p>
+                <p>Fraud Ratio: {{ fraud_ratio | round(1) }}%</p>
+            </div>
+        </aside>
+
+        <main class="main-panel">
+            <div class="page-header">
+                <h1>{{ title }}</h1>
+                <p class="subtitle">Machine Learning + Network Analytics for Identifying Suspicious Banking Transactions</p>
+                {% if message %}
+                <div class="message-banner">{{ message }}</div>
+                {% endif %}
+            </div>
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/graph.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

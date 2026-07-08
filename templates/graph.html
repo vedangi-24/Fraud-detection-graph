@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="section-panel">
+    <div class="section-header">
+        <h2>Graph</h2>
+        <p>Visualize transaction relationships and fraud connections.</p>
+    </div>
+
+    {% if data_available %}
+    <div class="action-row">
+        <button id="refreshGraph" class="primary-btn">Refresh Graph</button>
+        <div class="layout-select">
+            <label for="layoutSelect">Layout</label>
+            <select id="layoutSelect">
+                <option value="spring" {% if default_layout == 'spring' %}selected{% endif %}>Spring</option>
+                <option value="circular" {% if default_layout == 'circular' %}selected{% endif %}>Circular</option>
+                <option value="shell" {% if default_layout == 'shell' %}selected{% endif %}>Shell</option>
+                <option value="random" {% if default_layout == 'random' %}selected{% endif %}>Random</option>
+                <option value="spectral" {% if default_layout == 'spectral' %}selected{% endif %}>Spectral</option>
+            </select>
+        </div>
+    </div>
+    <div id="graph-container">
+        <div id="graph"></div>
+    </div>
+    {% else %}
+    <div class="section-panel" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);">
+        <p class="hint-text">Upload a CSV dataset on the Dashboard to unlock graph visualization.</p>
+        <a href="{{ url_for('dashboard') }}" class="primary-btn">Upload CSV</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if data_available %}
+<script>
+const graphData = {{ graph_json | safe }};
+</script>
+{% endif %}
+{% endblock %}

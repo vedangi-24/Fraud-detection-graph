@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="section-panel">
+    <div class="section-header">
+        <h2>Settings</h2>
+        <p>Configure theme, graph defaults, and upload behavior for your dashboard.</p>
+    </div>
+
+    <form method="post" action="{{ url_for('settings') }}" class="settings-form">
+        <div class="settings-grid">
+            <div class="settings-card">
+                <h3>Theme</h3>
+                <label>Select dashboard theme</label>
+                <select name="theme">
+                    <option value="dark" {% if theme == 'dark' %}selected{% endif %}>Dark</option>
+                    <option value="light" {% if theme == 'light' %}selected{% endif %}>Light</option>
+                </select>
+                <p class="hint-text">Use light mode if you prefer a brighter interface.</p>
+            </div>
+            <div class="settings-card">
+                <h3>Graph Defaults</h3>
+                <label>Default layout</label>
+                <select name="default_layout">
+                    <option value="spring" {% if default_layout == 'spring' %}selected{% endif %}>Spring</option>
+                    <option value="circular" {% if default_layout == 'circular' %}selected{% endif %}>Circular</option>
+                    <option value="shell" {% if default_layout == 'shell' %}selected{% endif %}>Shell</option>
+                    <option value="random" {% if default_layout == 'random' %}selected{% endif %}>Random</option>
+                    <option value="spectral" {% if default_layout == 'spectral' %}selected{% endif %}>Spectral</option>
+                </select>
+                <label>Auto refresh</label>
+                <select name="auto_refresh">
+                    <option value="On" {% if auto_refresh == 'On' %}selected{% endif %}>On</option>
+                    <option value="Off" {% if auto_refresh == 'Off' %}selected{% endif %}>Off</option>
+                </select>
+            </div>
+            <div class="settings-card">
+                <h3>Dataset & Upload</h3>
+                <label>Current dataset</label>
+                <p><strong>{{ dataset_path }}</strong></p>
+                <p class="hint-text">Upload a CSV file first to enable the dashboard and reports.</p>
+                <a href="{{ url_for('dashboard') }}" class="secondary-btn">Go to Upload</a>
+            </div>
+        </div>
+
+        <div class="settings-actions">
+            <button type="submit" class="primary-btn">Save Settings</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

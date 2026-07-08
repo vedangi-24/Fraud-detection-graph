@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="section-panel">
+    <div class="section-header">
+        <h2>Transactions</h2>
+        <p>Review, filter, and export transaction records from the current dataset.</p>
+    </div>
+
+    {% if transactions %}
+    <div class="table-actions">
+        <button id="exportCsv" class="secondary-btn">Download CSV</button>
+        <div class="filter-row">
+            <label>Amount above <input id="minAmount" type="number" placeholder="0"></label>
+            <label>Risk level
+                <select id="riskFilter">
+                    <option value="all">All</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                    <option value="critical">Critical</option>
+                </select>
+            </label>
+        </div>
+    </div>
+    <div class="table-wrapper">
+        <table class="transactions-table">
+            <thead>
+                <tr>
+                    <th>Transaction ID</th>
+                    <th>Source</th>
+                    <th>Target</th>
+                    <th>Amount</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in transactions %}
+                <tr>
+                    <td>{{ row.transaction_id }}</td>
+                    <td>{{ row.source }}</td>
+                    <td>{{ row.target }}</td>
+                    <td>₹{{ row.amount }}</td>
+                    <td>{{ row.type }}</td>
+                    <td>{{ row.status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="section-panel" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);">
+        <p class="hint-text">No transaction data is available. Upload a CSV dataset first to see transaction records.</p>
+        <a href="{{ url_for('dashboard') }}" class="primary-btn">Upload CSV</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

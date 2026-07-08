@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="section-panel">
+    <div class="section-header">
+        <h2>Analytics</h2>
+        <p>Analyze fraud distribution, model performance, and account network health.</p>
+    </div>
+
+    {% if data_available %}
+    <div class="analytics-grid">
+        <div class="chart-card">
+            <h3>Fraud Risk Distribution</h3>
+            <div id="riskChart"></div>
+        </div>
+        <div class="chart-card">
+            <h3>Model Performance</h3>
+            <div id="performanceChart"></div>
+        </div>
+        <div class="chart-card">
+            <h3>Top High-Risk Accounts</h3>
+            <ul class="detail-list">
+                {% for account in top_accounts %}
+                <li>Account {{ account.account }} <span>{{ account.score | round(1) }}% risk</span></li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="chart-card">
+            <h3>Graph Metrics</h3>
+            <ul class="detail-list">
+                <li>Average degree: <strong>{{ avg_degree | round(1) }}</strong></li>
+                <li>Connected components: <strong>{{ num_components }}</strong></li>
+                <li>Largest component: <strong>{{ largest_component }}</strong></li>
+                <li>Average clustering: <strong>{{ avg_clustering | round(2) }}</strong></li>
+            </ul>
+        </div>
+    </div>
+    {% else %}
+    <div class="section-panel" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);">
+        <p class="hint-text">Upload a dataset first to enable analytics and model insights.</p>
+        <a href="{{ url_for('dashboard') }}" class="primary-btn">Upload CSV</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if data_available %}
+<script>
+const analyticsData = {{ analytics_json | safe }};
+
+function renderAnalyticsCharts(data) {
+    const riskChart = document.getElementById('riskChart');
+    const performanceChart = document.getElementById('performanceChart');
+
+    if (riskChart) {
+        Plotly.newPlot(riskChart, [{
+            values: [data.fraud_count, data.normal_count],
+            labels: ['Fraud', 'Normal'],
+            type: 'pie',
+            marker: { colors: ['#ef4444', '#22c55e'] }
+        }], {
+            margin: { t: 20, b: 20 },
+            showlegend: true
+        }, {responsive: true});
+    }
+
+    if (performanceChart) {
+        const typeNames = Object.keys(data.transaction_types || {});
+        const typeValues = typeNames.map(key => data.transaction_types[key]);
+
+        Plotly.newPlot(performanceChart, [{
+            x: typeNames,
+            y: typeValues,
+            type: 'bar',
+            marker: { color: '#3b82f6' }
+        }], {
+            margin: { t: 30, b: 40 },
+            xaxis: { title: 'Transaction Type' },
+            yaxis: { title: 'Count' }
+        }, {responsive: true});
+    }
+}
+
+renderAnalyticsCharts(analyticsData);
+</script>
+{% endif %}
+{% endblock %}
