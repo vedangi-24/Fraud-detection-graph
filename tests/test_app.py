@@ -1,6 +1,6 @@
 import pytest
+import app as app_module
 from app import app
-import pandas as pd
 
 @pytest.fixture
 def client():
@@ -9,7 +9,7 @@ def client():
         yield client
 
 def test_load_dataset():
-    df = app.load_dataset()
+    df = app_module.load_dataset()
     assert 'source' in df.columns
     assert 'target' in df.columns
     assert 'amount' in df.columns

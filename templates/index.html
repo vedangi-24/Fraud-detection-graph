@@ -3,62 +3,409 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fraud Detection Using Graph AI</title>
+    <title>Graph-Based Fraud Detection Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Fraud Detection Using Graph AI</h1>
-        <div class="metrics">
-            <p><strong>Model Accuracy:</strong> {{ accuracy }}</p>
-            <p><strong>Fraud Nodes:</strong> {{ fraud_count }} (red)</p>
-            <p><strong>Normal Nodes:</strong> {{ normal_count }} (blue)</p>
-            <button id="refresh">Refresh Dynamic Graph</button>
-        </div>
-        <div id="graph-container">
-            <div id="graph"></div>
-        </div>
+        <aside class="sidebar">
+            <div class="brand-panel">
+                <h2>Graph Fraud AI</h2>
+                <p>Enterprise-style dashboard for transaction network analysis.</p>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#dashboard" class="active">Dashboard</a>
+                <a href="#graphSection">Graph</a>
+                <a href="#transactionsSection">Transactions</a>
+                <a href="#analyticsSection">Analytics</a>
+                <a href="#reportsSection">Reports</a>
+                <a href="#settingsSection">Settings</a>
+                <a href="#aboutSection">About</a>
+            </nav>
+            <div class="sidebar-card">
+                <h3>Risk Legend</h3>
+                <p><span class="legend-marker low"></span> Low Risk</p>
+                <p><span class="legend-marker medium"></span> Medium Risk</p>
+                <p><span class="legend-marker high"></span> High Risk</p>
+                <p><span class="legend-marker critical"></span> Critical Risk</p>
+            </div>
+            <div class="sidebar-card">
+                <h3>Dataset</h3>
+                <p><strong>{{ dataset_path }}</strong></p>
+                <p>Transactions: {{ total_transactions }}</p>
+                <p>Accounts: {{ total_accounts }}</p>
+                <p>Fraud Ratio: {{ fraud_ratio | round(1) }}%</p>
+            </div>
+        </aside>
+
+        <main class="main-panel" id="dashboard">
+            <div class="page-header">
+                <h1>Graph-Based Fraud Detection Dashboard</h1>
+                <p class="subtitle">Machine Learning + Network Analytics for Identifying Suspicious Banking Transactions</p>
+                {% if message %}
+                <div class="message-banner">{{ message }}</div>
+                {% endif %}
+            </div>
+            <section id="graphSection">
+                <div class="section-header">
+                    <h2>Graph Overview</h2>
+                    <p>Visualize transaction relationships and flagged fraud edges across accounts.</p>
+                </div>
+                <div class="action-row">
+                    <button id="refresh">Refresh Graph</button>
+                </div>
+                <div id="graph-container">
+                    <div id="graph"></div>
+                </div>
+                <div class="graph-instructions">
+                    Hover over nodes to inspect. Click a node to view transactions. Scroll to zoom. Drag to pan.
+                </div>
+            </section>
+
+            <section id="transactionsSection" class="section-panel">
+                <div class="section-header">
+                    <h2>Transactions</h2>
+                    <p>Browse the uploaded dataset with search, filters, and CSV export.</p>
+                </div>
+                <div class="transactions-toolbar">
+                    <input id="tableSearch" type="search" placeholder="Search transactions or account"> 
+                    <button id="downloadCsvTable" class="secondary-btn">Download CSV</button>
+                </div>
+                <div class="table-wrap">
+                    <table id="transactionsTable">
+                        <thead>
+                            <tr>
+                                <th data-sort="type">Step</th>
+                                <th data-sort="type">Type</th>
+                                <th data-sort="amount">Amount</th>
+                                <th data-sort="source">Source</th>
+                                <th data-sort="target">Target</th>
+                                <th data-sort="fraud">Fraud</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="analyticsSection" class="section-panel">
+                <div class="section-header">
+                    <h2>Analytics</h2>
+                    <p>See fraud distribution, transaction type trends, amount bands, and top risk accounts.</p>
+                </div>
+                <div class="analytics-grid">
+                    <div class="chart-card" id="fraudPie"></div>
+                    <div class="chart-card" id="transactionBar"></div>
+                    <div class="chart-card" id="amountHist"></div>
+                    <div class="chart-card" id="topFraudAccounts"></div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span>Average Degree</span>
+                        <strong>{{ avg_degree | round(1) }}</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span>Largest Component</span>
+                        <strong>{{ largest_component }}</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span>Graph Density</span>
+                        <strong>{{ (low_risk_count + medium_risk_count + high_risk_count + critical_risk_count) and ((total_transactions / (total_accounts * (total_accounts - 1))) | round(3) ) or 0 }}</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span>Avg Transaction Amount</span>
+                        <strong>₹{{ avg_amount | round(0) }}</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span>Fraud Ratio</span>
+                        <strong>{{ fraud_rate | round(1) }}%</strong>
+                    </div>
+                </div>
+            </section>
+
+            <section id="reportsSection" class="section-panel">
+                <div class="section-header">
+                    <h2>Reports</h2>
+                    <p>Export your dataset, graph, and analytics for client delivery.</p>
+                </div>
+                <div class="report-actions">
+                    <a href="/download/csv" class="secondary-btn">Download CSV</a>
+                    <button id="downloadPdf" class="secondary-btn">Download PDF</button>
+                    <button id="downloadImage" class="secondary-btn">Download Graph Image</button>
+                </div>
+            </section>
+
+            <section id="settingsSection" class="section-panel">
+                <div class="section-header">
+                    <h2>Settings</h2>
+                    <p>Update theme, graph layout, fraud threshold, node size, and visuals.</p>
+                </div>
+                <div class="settings-grid">
+                    <div class="setting-card">
+                        <label for="themeSelect">Theme</label>
+                        <select id="themeSelect">
+                            <option value="dark">Dark</option>
+                            <option value="light">Light</option>
+                        </select>
+                    </div>
+                    <div class="setting-card">
+                        <label for="graphLayoutSelect">Graph Layout</label>
+                        <select id="graphLayoutSelect">
+                            <option value="spring">Spring</option>
+                            <option value="circular">Circular</option>
+                            <option value="shell">Shell</option>
+                            <option value="random">Random</option>
+                        </select>
+                    </div>
+                    <div class="setting-card">
+                        <label for="fraudThreshold">Fraud Threshold (%)</label>
+                        <input id="fraudThreshold" type="range" min="10" max="90" step="10" value="50">
+                        <span id="fraudThresholdValue">50%</span>
+                    </div>
+                    <div class="setting-card">
+                        <label for="nodeSizeSelect">Node Size</label>
+                        <select id="nodeSizeSelect">
+                            <option value="small">Small</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="large">Large</option>
+                        </select>
+                    </div>
+                    <div class="setting-card switch-card">
+                        <span>Edge Visibility</span>
+                        <label class="switch"><input id="edgeVisibility" type="checkbox" checked><span class="slider"></span></label>
+                    </div>
+                    <div class="setting-card switch-card">
+                        <span>Animation</span>
+                        <label class="switch"><input id="animationToggle" type="checkbox" checked><span class="slider"></span></label>
+                    </div>
+                </div>
+            </section>
+
+            <section id="aboutSection" class="section-panel about-panel">
+                <div class="section-header">
+                    <h2>About</h2>
+                    <p>Software details, dataset information, developer profile, and licensing.</p>
+                </div>
+                <div class="about-grid">
+                    <div class="about-card">
+                        <h3>Product</h3>
+                        <p>Graph-Based Fraud Detection Dashboard</p>
+                        <p><strong>Version</strong> 1.0</p>
+                        <p><strong>Developer</strong> Vedangi Kulkarni</p>
+                    </div>
+                    <div class="about-card">
+                        <h3>Technology</h3>
+                        <ul>
+                            <li>Python</li>
+                            <li>Flask</li>
+                            <li>NetworkX</li>
+                            <li>Plotly</li>
+                            <li>Random Forest</li>
+                        </ul>
+                    </div>
+                    <div class="about-card">
+                        <h3>Dataset</h3>
+                        <p>Synthetic Banking Dataset</p>
+                        <p><strong>License</strong> MIT</p>
+                        <p><strong>GitHub</strong> <a href="https://github.com/vedangi-24" target="_blank">github.com/vedangi-24</a></p>
+                    </div>
+                </div>
+            </section>
+                <div class="metric-card">
+                    <span>Accuracy</span>
+                    <strong>{{ accuracy_display }}%</strong>
+                </div>
+                <div class="metric-card">
+                    <span>Total Accounts</span>
+                    <strong>{{ total_accounts }}</strong>
+                </div>
+                <div class="metric-card">
+                    <span>Total Transactions</span>
+                    <strong>{{ total_transactions }}</strong>
+                </div>
+                <div class="metric-card">
+                    <span>Fraud Rate</span>
+                    <strong>{{ fraud_rate | round(1) }}%</strong>
+                </div>
+                <div class="metric-card">
+                    <span>Avg Transaction Amount</span>
+                    <strong>₹{{ avg_amount | round(0) }}</strong>
+                </div>
+                <div class="metric-card">
+                    <span>Fraud Transactions</span>
+                    <strong>{{ fraud_transaction_count }}</strong>
+                </div>
+                <div class="metric-card">
+                    <span>High Risk Accounts</span>
+                    <strong>{{ high_risk_accounts }}</strong>
+                </div>
+                <div class="metric-card">
+                    <span>Average Degree</span>
+                    <strong>{{ avg_degree | round(1) }}</strong>
+                </div>
+                <div class="metric-card">
+                    <span>Largest Connected Component</span>
+                    <strong>{{ largest_component }}</strong>
+                </div>
+                <div class="metric-card">
+                    <span>Highest Risk Score</span>
+                    <strong>{{ highest_risk_score | round(1) }}%</strong>
+                </div>
+                <div class="metric-card">
+                    <span>Suspicious Transactions</span>
+                    <strong>{{ suspicious_tx_count }}</strong>
+                </div>
+                <div class="metric-card">
+                    <span>Highest Risk Account</span>
+                    <strong>{{ highest_risk_account }}</strong>
+                </div>
+            </div>
+            <div class="action-row">
+                <button id="refresh">Analyze Dataset</button>
+            </div>
+            <div id="graph-container">
+                <div id="graph"></div>
+            </div>
+            <div class="graph-instructions">
+                Hover over nodes to inspect. Click a node to view transactions. Scroll to zoom. Drag to pan.
+            </div>
         <div class="legend">
-            <span class="legend-item red"></span> Fraud
-            <span class="legend-item blue"></span> Normal
+            <span class="legend-badge fraud"></span> Fraud Accounts
+            <span class="legend-badge normal"></span> Normal Accounts
+        </div>
+        <div class="project-panels">
+            <div class="panel dataset-panel">
+                <h3>Dataset</h3>
+                <ul>
+                    <li><strong>{{ dataset_label }}</strong></li>
+                    <li>Transactions: {{ total_transactions }}</li>
+                    <li>Accounts: {{ total_accounts }}</li>
+                    <li>Fraud Ratio: {{ fraud_ratio | round(1) }}%</li>
+                </ul>
+                <h3>ML Model</h3>
+                <ul>
+                    <li>{{ model_name }}</li>
+                    <li>Graph Library: {{ graph_library }}</li>
+                    <li>Visualization: {{ visualization_library }}</li>
+                </ul>
+            </div>
+            <div id="about" class="panel about-panel">
+                <h3>About Project</h3>
+                <p>This application demonstrates Graph-Based Fraud Detection using Machine Learning and Network Analysis.</p>
+                <h3>Technologies</h3>
+                <ul class="tech-list">
+                    <li>Python</li>
+                    <li>Flask</li>
+                    <li>Random Forest</li>
+                    <li>NetworkX</li>
+                    <li>Plotly</li>
+                    <li>HTML/CSS/JavaScript</li>
+                </ul>
+            </div>
         </div>
         <!-- Node Details Modal -->
         <div id="nodeModal" class="modal">
             <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2 id="nodeTitle">Node Details</h2>
+                <div class="modal-header">
+                    <h2 id="nodeTitle">Node Details</h2>
+                    <span class="close">&times;</span>
+                </div>
                 <p id="nodeSummary"></p>
                 <h3>Transactions (Top 10):</h3>
-                <table id="txnTable">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Type</th>
-                            <th>Other</th>
-                            <th>Amount</th>
-                            <th>Fraud</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+                <div class="table-wrap">
+                    <table id="txnTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Type</th>
+                                <th>Other</th>
+                                <th>Amount</th>
+                                <th>Fraud</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
                 <h3>Connections:</h3>
                 <p id="neighborsList"></p>
             </div>
         </div>
+        <footer class="footer">
+            Graph Analytics | Machine Learning | Flask
+        </footer>
     </div>
     <script src="{{ url_for('static', filename='js/graph.js') }}"></script>
     <script>
+        // Flask already sends valid JSON
         const graphData = {{ graph_json | safe }};
+
         const layout = {
-            title: 'Transaction Network (Click nodes for txn details, Hover, Zoom/Pan)',
+            paper_bgcolor: "#111827",
+            plot_bgcolor: "#111827",
+
+            font: {
+                color: "white"
+            },
+
+            title: {
+                text: "Graph-Based Fraud Detection Network",
+                font: {
+                    size: 24
+                }
+            },
+
             showlegend: false,
-            hovermode: 'closest',
-            margin: { t: 40 },
-            xaxis: {showgrid: false, zeroline: false, showticklabels: false},
-            yaxis: {showgrid: false, zeroline: false, showticklabels: false}
+            hovermode: "closest",
+
+            margin: {
+                t: 60,
+                l: 20,
+                r: 20,
+                b: 20
+            },
+
+            xaxis: {
+                showgrid: false,
+                zeroline: false,
+                showticklabels: false
+            },
+
+            yaxis: {
+                showgrid: false,
+                zeroline: false,
+                showticklabels: false
+            }
         };
-        Plotly.newPlot('graph', [graphData.node_trace, graphData.edge_trace], layout);
+
+        const config = {
+            displaylogo: false,
+            modeBarButtonsToRemove: [
+                "lasso2d",
+                "select2d",
+                "zoomIn2d",
+                "zoomOut2d",
+                "autoScale2d"
+            ]
+        };
+
+        Plotly.newPlot(
+            "graph",
+            [graphData.edge_trace_normal, graphData.edge_trace_fraud, graphData.node_trace],
+            layout,
+            {
+                displayModeBar: false,
+                responsive: true,
+                displaylogo: false,
+                modeBarButtonsToRemove: [
+                    "lasso2d",
+                    "select2d",
+                    "zoomIn2d",
+                    "zoomOut2d",
+                    "autoScale2d"
+                ]
+            }
+        );
     </script>
 </body>
 </html>
